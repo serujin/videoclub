@@ -2,9 +2,9 @@
 
 Descarga el zip con los archivos
 
-Extraelos donde quieras
+Extraelos en una carpeta
 
-En eclipse crea un nuevo proyecto e importa los archivos del zip en él (con el asistente de eclipse)
+En eclipse crea un nuevo proyecto e importa los archivos de la carpeta en él (con el asistente de eclipse)
 
 Dale que si a sobreescribir el .project y el .classpath
 

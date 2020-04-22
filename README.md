@@ -1,5 +1,11 @@
-# videoclub
+# Videoclub in java
 
-Download all archives and insert it on a folder named: Videoclub
+Descarga el zip con los archivos
 
-Then add it to the eclipse workspace
+Extraelos donde quieras
+
+En eclipse crea un nuevo proyecto e importa los archivos del zip en él (con el asistente de eclipse)
+
+Dale que si a sobreescribir el .project y el .classpath
+
+Rezo por que funcione

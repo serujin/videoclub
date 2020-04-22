@@ -9,19 +9,34 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JOptionPane;
+
 public class Constants {
+	
+	/*
+	 * 
+	 * Esta clase tiene todas las constantes (como su propio nombre indica) que he podido (por el tiempo) sacar,
+	 * 		las demás constantes son fruto de cálculos con ésta clase (posiciones relativas de componentes,
+	 * 		tamaños...)
+	 * 
+	 * También se encarga de cargar las fuentes de texto del sistema
+	 * 
+	 */
+	
 	private Constants() {}
 	public static void initLabelsFont() throws FontFormatException, IOException {
-		filterFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/6.5));
-		helpFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/8.5));
-		userFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/9.5));
-		userOptionsFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/10.5));
-		rentFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/3.5));
-		resultFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/7.6));
-		pointsFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/8.7));
-		insideUserLabelsFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/1.7));
-		insideUserButtonsFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/3.9));
-		actionButtonFont = Font.createFont(Font.TRUETYPE_FONT, FONT).deriveFont((float) (FILTER_W/8.5));
+		filterFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/6.5));
+		helpFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/8.5));
+		userFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/9.5));
+		userOptionsFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/10.5));
+		rentFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/3.5));
+		resultFont = Font.createFont(Font.TRUETYPE_FONT, FONT_2).deriveFont((float) (FILTER_W/14.6));
+		pointsFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/8.7));
+		insideUserLabelsFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/1.7));
+		insideUserButtonsFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/3.9));
+		insideUserAdminButtonsFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/5.9));
+		actionButtonFont = Font.createFont(Font.TRUETYPE_FONT, FONT_1).deriveFont((float) (FILTER_W/8.5));
+		userAdminListFont = Font.createFont(Font.TRUETYPE_FONT, FONT_2).deriveFont((float) (FILTER_W/5.6));
 		registerFonts();
 	}
 	private static void registerFonts() {
@@ -36,13 +51,16 @@ public class Constants {
 		ge.registerFont(insideUserLabelsFont);
 		ge.registerFont(insideUserButtonsFont);
 		ge.registerFont(actionButtonFont);
+		ge.registerFont(insideUserAdminButtonsFont);
+		ge.registerFont(userAdminListFont);
 	}
 	//HERE ALL ABOUT GRAPHICS
 	public static final int W = (int) (Toolkit.getDefaultToolkit().getScreenSize().width/1.3);
 	public static final int H = (int) (Toolkit.getDefaultToolkit().getScreenSize().height/1.3);
 	public static final String WINDOW_TITLE = "Video Vision";
 	public static final Color BG_COLOR = new Color(99,0,0);
-	private static final File FONT = new File("Fonts/Custom.ttf");
+	private static final File FONT_1 = new File("fonts/Custom.ttf");
+	private static final File FONT_2 = new File("fonts/Result.ttf");
 	public static Font filterFont;
 	public static Font helpFont;
 	public static Font userFont;
@@ -53,6 +71,8 @@ public class Constants {
 	public static Font insideUserLabelsFont;
 	public static Font insideUserButtonsFont;
 	public static Font actionButtonFont;
+	public static Font insideUserAdminButtonsFont;
+	public static Font userAdminListFont;
 	//HERE ALL ABOUT LOGO 
 	public static final String LOGO_PATH = "VD_LOGO.png";
 	public static final String LOGIN_IMG_PATH = "LOGIN.png";
@@ -155,11 +175,11 @@ public class Constants {
 	public static final String[] RESULT_OPTION_TITLES = {" Inventario", " Alquilados", " Reparando"};
 	public static final int BORDER_RESULT_SIZE = 3;
 	public static final int RESULT_ACTION_PANE_W = (int) (RESULT_W/4);
-	public static final int RESULT_ACTION_PANE_H = RESULT_H/2;
+	public static final int RESULT_ACTION_PANE_H = (int) (RESULT_H/1.5);
 	public static final int RESULT_ACTION_PANE_X = RESULT_LIST_X+RESULT_LIST_W+(RESULT_W-(RESULT_LIST_X+RESULT_LIST_W+RESULT_ACTION_PANE_W))/2;
 	public static final int RESULT_ACTION_PANE_Y = RESULT_H/2 - RESULT_ACTION_PANE_H/2;
 	public static final int RESULT_ACTION_BUTTON_W = RESULT_ACTION_PANE_W;
-	public static final int RESULT_ACTION_BUTTON_H = RESULT_ACTION_PANE_H/6;
+	public static final int RESULT_ACTION_BUTTON_H = RESULT_ACTION_PANE_H/7;
 	public static final int RESULT_ACTION_BUTTON_X = 0;
 	public static final int RESULT_ACTION_BUTTON_Y = 0;	
 	public static final Point RESULT_POINT = new Point(RESULT_X,RESULT_Y);
@@ -199,62 +219,29 @@ public class Constants {
 	public static final String DB = "jdbc:sqlite:";
 	public static final String DB_NAME = "vc.db";
 	private static final String CREATE_USERS_TABLE = "CREATE TABLE 'USERS' ("+
-			"	'ID'	INTEGER PRIMARY KEY AUTOINCREMENT,"+
-			"	'USERNAME'	TEXT NOT NULL,"+
-			"	'PASSWORD'	TEXT NOT NULL"+
+			"'ID'				INTEGER PRIMARY KEY AUTOINCREMENT," +
+			"'USERNAME'			TEXT,"+
+			"'PASSWORD'			TEXT"+
 			")";
 	private static final String CREATE_ARTICLE_TABLE = "CREATE TABLE 'ARTICLES' (" + 
-			"	'ID' INTEGER PRIMARY KEY AUTOINCREMENT," + 
-			"	'NAME' TEXT NOT NULL," + 
-			"	'DIRECTOR' TEXT NOT NULL," + 
-			"	'YEAR' NUMERIC NOT NULL," + 
-			"	'TYPE' INTEGER NOT NULL" + 
+			"'ID'				INTEGER PRIMARY KEY AUTOINCREMENT," + 
+			"'ARTICLE_TYPE'      TEXT," +
+			"'NAME'				TEXT," + 
+			"'DIRECTOR'			TEXT," + 
+			"'YEAR'				INTEGER," + 
+			"'MOVIE_TYPE'		TEXT," + 
+			"'ANIMATION'		TEXT," + 
+			"'SERIES_PARENT'    TEXT," +
+			"'SEASON_PARENT'	TEXT," + 
+			"'EPISODE_NUMBER'	INTEGER," + 
+			"'STOCK'			INTEGER," + 
+			"'RENTED'			INTEGER DEFAULT 0," + 
+			"'REPAIRING'		INTEGER DEFAULT 0," + 
+			"'VALUATION'		REAL DEFAULT 2.5" +
 			")";
-	private static final String CREATE_ARTICLE_STATE_TABLE = "CREATE TABLE 'ARTICLES_STATE' (" + 
-			"	'ID' INTEGER," + 
-			"	'STOCK' INTEGER," + 
-			"	'RENTED' INTEGER DEFAULT 0," + 
-			"	'REPAIRING' INTEGER DEFAULT 0," + 
-			"	FOREIGN KEY('ID') REFERENCES 'ARTICLES'('ID') ON DELETE CASCADE" + 
-			")";
-	private static final String CREATE_EPISODE_TABLE = "CREATE TABLE 'EPISODES' (" + 
-			"	'ID' INTEGER PRIMARY KEY AUTOINCREMENT," + 
-			"	'NAME' TEXT," + 
-			"	'VALORATION' REAL DEFAULT 2.5," + 
-			"	'IDS' INTEGER," + 
-			"	FOREIGN KEY('ID') REFERENCES 'SEASON'('ID') ON DELETE CASCADE" + 
-			")";
-	private static final String CREATE_EPISODE_STATE_TABLE = "CREATE TABLE 'EPISODES_STATE' (" + 
-			"	'ID' INTEGER," + 
-			"	'STOCK' INTEGER," + 
-			"	'RENTED' INTEGER DEFAULT 0," + 
-			"	'REPAIRING' INTEGER DEFAULT 0," + 
-			"	FOREIGN KEY('ID') REFERENCES 'EPISODES'('ID') ON DELETE CASCADE" + 
-			")";
-	private static final String CREATE_MOVIES_TABLE = "CREATE TABLE 'MOVIES' (" + 
-			"	'ID' INTEGER," + 
-			"	'TYPE' TEXT NOT NULL," + 
-			"	'ATYPE' TEXT," + 
-			"	'VALUATION' REAL DEFAULT 2.5," + 
-			"	FOREIGN KEY('ID') REFERENCES 'ARTICLES'('ID') ON DELETE CASCADE" + 
-			")";
-	private static final String CREATE_SEASONS_TABLE = "CREATE TABLE 'SEASONS' (" + 
-			"	'ID' INTEGER PRIMARY KEY AUTOINCREMENT," + 
-			"	'NAME' TEXT," + 
-			"	'IDA' INTEGER," + 
-			"	FOREIGN KEY('ID') REFERENCES 'ARTICLES'('ID') ON DELETE CASCADE" + 
-			")";
-	private static final String CREATE_SEASON_STATE_TABLE = "CREATE TABLE 'SEASONS_STATE' (" + 
-			"	'ID' INTEGER," + 
-			"	'STOCK' INTEGER," + 
-			"	'RENTED' INTEGER DEFAULT 0," + 
-			"	'REPAIRING' INTEGER DEFAULT 0," + 
-			"	FOREIGN KEY('ID') REFERENCES 'SEASON'('ID') ON DELETE CASCADE" + 
-			")";
-	public static final String[] CREATE_QUERYS = {CREATE_USERS_TABLE,CREATE_ARTICLE_TABLE,CREATE_ARTICLE_STATE_TABLE,CREATE_EPISODE_TABLE,CREATE_EPISODE_STATE_TABLE,CREATE_MOVIES_TABLE,
-			CREATE_SEASONS_TABLE,CREATE_SEASON_STATE_TABLE};
-	//HERE ALL THE POSSIBLE ERRORS
-	public static final String DB_CONNECT_ERROR = "DATABASE CONNECTION ERROR";
-	public static final String LOGO_LOAD_ERROR = "LOGO LOADING ERROR";
-	
+	public static final String[] CREATE_QUERYS = {CREATE_USERS_TABLE,CREATE_ARTICLE_TABLE};
+	//Sé que está feo pero no he podido hacer más
+	public static void showError() {
+		 JOptionPane.showMessageDialog(null,"ERROR ", "Error", JOptionPane.ERROR_MESSAGE);
+	}
 }

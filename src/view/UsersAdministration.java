@@ -44,14 +44,10 @@ public class UsersAdministration extends JPanel {
 	}
 	
 	private void initUsersList() {
-		String[] a = new String[120];
-		for(int i=0;i<a.length;i++) {
-			a[i]=" "+i;
-		}
 		JScrollPane resultPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		users = new JList<>(a);
-		users.setFont(Constants.resultFont);
-		users.setBackground(Color.GREEN);
+		users = new JList<>();
+		users.setFont(Constants.userAdminListFont);
+		users.setBackground(Constants.BG_COLOR);
 		users.setForeground(Color.WHITE);
 		resultPane.setViewportView(users);
 		users.setCellRenderer(new SelectedListCellRenderer());
@@ -80,7 +76,7 @@ public class UsersAdministration extends JPanel {
 	private void formatButton(JButton b, int row) {
 		b.setSize(Constants.RESULT_ACTION_BUTTON_W, Constants.RESULT_ACTION_PANE_H/4);
 		b.setLocation(Constants.RESULT_ACTION_BUTTON_X, (Constants.RESULT_ACTION_PANE_H/4*row));
-		b.setFont(Constants.insideUserButtonsFont);
+		b.setFont(Constants.insideUserAdminButtonsFont);
 		b.setFocusPainted(false);
 		b.setBorder(null);
 		p.add(b);

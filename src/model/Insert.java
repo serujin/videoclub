@@ -1,132 +1,154 @@
 package model;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-
 import javax.swing.JOptionPane;
 
 public class Insert {
 	private Connection c;
-	private PreparedStatement p;
-	private ResultSet r;
-	private Statement s;
+	private File articles;
+	private File articlesGuide;
 	private static final String INSERT_USER = "INSERT INTO USERS(USERNAME,PASSWORD) VALUES(?,?)";
-	private static final String INSERT_ARTICLE = "INSERT INTO ARTICLES(NAME,DIRECTOR,YEAR,TYPE) VALUES(?,?,?,?)";
-	private static final String INSERT_EPISODE = "INSERT INTO EPISODES(NAME,ID) VALUES(?,?)";
-	private static final String INSERT_MOVIE = "INSERT INTO MOVIES(ID,TYPE,ATYPE) VALUES(?,?,?)";
-	private static final String INSERT_SEASON = "INSERT INTO SEASONS(NAME,ID) VALUES(?,?)";
-	
-	public Insert(Connection c) throws SQLException {
+	private static final String MESSAGE = "<--- Como añadir artículos --->\n\n"
+			+ "Escribe en el fichero \"articles.txt\" que encontrarás en el directorio del programa\n\n"
+			+ "Añadir Películas --> P--Nombre--Director--Año--Género(1 = Ciencia-Ficción o 2 = Animación)--Animación(solo si se especifica 2 en el género)--Nº Copias\n"
+			+ "Añadir Series -----> S--Nombre--Director--Año--Nº Copias\n"
+			+ "Añadir Temporadas -> T--Nombre(opcional)\n"
+			+ "Añadir Capítulos --> C--Nombre\n\n"
+			+ "*** Importante ***\n\n"
+			+ "Las temporadas de las series deben ir justo debajo de su serie\n"
+			+ "Los capítulos de las temporadas deben ir justo debajo de su temporada\n\n"
+			+ "Ejemplo:\n"
+			+ "S--Élite--Carlos Montero--2018--3"
+			+ "P--Peter Pan--Clyde Geronimi--1954--2--Dibujos Animados--4\n"
+			+ "S--Élite--Carlos Montero--2018--3\n"
+			+ "T--\n"
+			+ "C--Bienvenidos\n"
+			+ "C--Deseo\n"
+			+ "...\n"
+			+ "T--Temporada 2\n"
+			+ "...";
+	private static final String ANIMATION_MOVIE = "INSERT INTO ARTICLES(NAME,ARTICLE_TYPE,DIRECTOR,YEAR,MOVIE_TYPE,ANIMATION,STOCK) VALUES(?,?,?,?,?,?,?)";
+	private static final String SCIFI_MOVIE = "INSERT INTO ARTICLES(NAME,ARTICLE_TYPE,DIRECTOR,YEAR,MOVIE_TYPE,STOCK) VALUES(?,?,?,?,?,?)";
+	private static final String SERIE = "INSERT INTO ARTICLES(NAME,ARTICLE_TYPE,DIRECTOR,YEAR,STOCK) VALUES(?,?,?,?,?)";
+	private static final String SEASON = "INSERT INTO ARTICLES(NAME,ARTICLE_TYPE,YEAR,SERIES_PARENT,STOCK) VALUES(?,?,?,?,?)";
+	private static final String EPISODE = "INSERT INTO ARTICLES(NAME,ARTICLE_TYPE,YEAR,SERIES_PARENT,SEASON_PARENT,EPISODE_NUMBER,STOCK) VALUES(?,?,?,?,?,?,?)";
+	public Insert(Connection c) throws SQLException, IOException {
 		this.c = c;
-		s = c.createStatement();
+		articles = new File("articles.txt");
+		articlesGuide = new File("articlesGuide.txt");
+		if(articles.createNewFile()) {
+			articlesGuide.createNewFile();
+			FileWriter fw = new FileWriter(articlesGuide);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(MESSAGE);
+            bw.close();
+		}
 	}
 	
 	public void user(String user, String password) throws SQLException {
-		p = c.prepareStatement(INSERT_USER);
+		PreparedStatement p = c.prepareStatement(INSERT_USER);
 		p.setString(1, user);
 		p.setString(2, password);
 		p.executeUpdate();
 	}
 	
-	public void article() throws SQLException {
-		boolean movie = false;
-		int option = JOptionPane.showConfirmDialog(null,"¿Deseas añadir una película?", "Tipo de Artículo", JOptionPane.YES_NO_OPTION);
-		if(option==JOptionPane.YES_OPTION) {
-			movie = true;
-		} 
-		int quantity = Integer.parseInt(JOptionPane.showInputDialog(null,"¿Cuántas copias deseas añadir?"));
-		insertArticle(movie, quantity);
-		if(movie) {
-			insertMovie();
-		} else {
-			insertSeason(quantity);
-		}
-		JOptionPane.showMessageDialog(null,"Artículo añadido con éxito al inventario","Añadir artículos", JOptionPane.PLAIN_MESSAGE);
+	public void articles() throws SQLException, NumberFormatException, IOException {
+		Select select = new Select(c);
+		String help = "1º Consulta en la carpeta del proyecto el archivo \"articlesGuide.txt\"\n"
+				+ "2º Agrega tus artículos en el archivo \"articles.txt\" siguiendo al detalle\n"
+				+ "		la guía del archivo \"articlesGuide.txt\"\n"
+				+ "3º Pulsa el botón de aceptar de aquí debajo para añadir los artículos escritos";
+		JOptionPane.showMessageDialog(null, help,"Añadir artículos",JOptionPane.PLAIN_MESSAGE);
+		insertFromFile(select);
+		JOptionPane.showMessageDialog(null, "Artículos añadidos con éxito","Añadir artículos",JOptionPane.PLAIN_MESSAGE);
 	}
 
-	private void insertArticle(boolean movie, int quantity) throws SQLException {
-		String articleType = " serie";
-		int type = 0;
-		if(movie) {
-			articleType = " película";
-			type = 1;
-		}
-		String name = JOptionPane.showInputDialog("Inserte el nombre de la"+articleType);
-		String director = JOptionPane.showInputDialog("Inserte el nombre y apellidos del director de la"+articleType);
-		int year = Integer.parseInt(JOptionPane.showInputDialog("Inserte el año de lanzamiento de la"+articleType));
-		p = c.prepareStatement(INSERT_ARTICLE);
-		p.setString(1, name);
-		p.setString(2, director);
-		p.setInt(3, year);
-		p.setInt(4, type);
-		p.executeUpdate();
-		addStock("ARTICLES",quantity);
+	private void insertFromFile(Select select) throws IOException, SQLException {
+		addArticles(select);
 	}
-	
-	private void insertMovie() throws SQLException {
-		r = s.executeQuery("SELECT MAX(ID) FROM ARTICLES");
-		int articleID = r.getInt(1);
-		String type;
-		String animation = "";
-		int option = JOptionPane.showConfirmDialog(null,"¿La película es de animación?", "Tipo de Película", JOptionPane.YES_NO_OPTION);
-		if(option==JOptionPane.YES_OPTION) {
-			type = "Animación";
-			animation =  JOptionPane.showInputDialog("Inserte el tipo de animación de la película");
-		} else {
-			type = "Ciencia-Ficción";
-		}
-		p = c.prepareStatement(INSERT_MOVIE);
-		p.setInt(1, articleID);
-		p.setString(2, type);
-		p.setString(3, animation);
-		p.executeUpdate();
-	}
-	
-	private void insertSeason(int quantity) throws SQLException {
-		r = s.executeQuery("SELECT MAX(ID) FROM ARTICLES");
-		int articleID = r.getInt(1);
-		int seasons = Integer.parseInt(JOptionPane.showInputDialog(null, "¿Cuántas temporadas conforman la serie?"));
-		for(int i=0;i<seasons;i++) {
-			int option = JOptionPane.showConfirmDialog(null,"¿La temporada "+(i+1)+" tiene nombre?", "Nombre de temporada", JOptionPane.YES_NO_OPTION);
-			String name;
-			if(option==JOptionPane.YES_OPTION) {
-				name = JOptionPane.showInputDialog("Inserte el nombre de la temporada "+(i+1));
-			} else {
-				name = "Temporada "+(i+1);
+
+	private void addArticles(Select select) throws IOException, SQLException {
+		int currentEpisode = 1;
+		int stock = 0;
+		PreparedStatement insertArticles=null;
+		FileReader fr = new FileReader(articles);
+		BufferedReader input = new BufferedReader(fr); 
+		String line;
+		String seriesName = null;
+		String seasonsName = null;
+		int seasonsNumber = 0;
+		int seriesYear = 0;
+		while((line=input.readLine()) != null) {
+			String[] data = line.split("--");
+			if(data[0].equals("P")) {
+				if(Integer.parseInt(data[4])==1) {
+					insertArticles = c.prepareStatement(SCIFI_MOVIE);
+					insertArticles.setString(1, data[1]);
+					insertArticles.setString(2, "P");
+					insertArticles.setString(3, data[2]);
+					insertArticles.setInt(4, Integer.parseInt(data[3]));
+					insertArticles.setString(5, "Ciencia-Ficción");
+					insertArticles.setInt(6, Integer.parseInt(data[5]));
+				} else {
+					insertArticles = c.prepareStatement(ANIMATION_MOVIE);
+					insertArticles.setString(1, data[1]);
+					insertArticles.setString(2, "P");
+					insertArticles.setString(3, data[2]);
+					insertArticles.setInt(4, Integer.parseInt(data[3]));
+					insertArticles.setString(5, "Animación");
+					insertArticles.setString(6, data[5]);
+					insertArticles.setInt(7, Integer.parseInt(data[6]));
+				}
+			} 
+			if(data[0].equals("S")) {
+				stock = Integer.parseInt(data[4]);
+				insertArticles = c.prepareStatement(SERIE);
+				insertArticles.setString(1, data[1]);
+				insertArticles.setString(2, "S");
+				insertArticles.setString(3, data[2]);
+				seriesYear = Integer.parseInt(data[3]);
+				insertArticles.setInt(4, Integer.parseInt(data[3]));
+				insertArticles.setInt(5, stock);
+				seriesName = data[1];
 			}
-			p = c.prepareStatement(INSERT_SEASON);
-			p.setString(1, name);
-			p.setInt(2, articleID);
-			p.executeUpdate();
-			addStock("SEASONS",quantity);
-			insertEpisode(quantity);
+			if(data[0].equals("T")) {
+				seasonsNumber++;
+				insertArticles = c.prepareStatement(SEASON);
+				if(data.length==2) {
+					insertArticles.setString(1, data[1]);
+					seasonsName = data[1];
+				} else {
+					insertArticles.setString(1, "Temporada "+seasonsNumber);
+					seasonsName = "Temporada "+seasonsNumber;
+				}
+				insertArticles.setString(2, "T");
+				insertArticles.setInt(3, seriesYear);
+				insertArticles.setString(4, seriesName);
+				insertArticles.setInt(5, stock);
+				currentEpisode = 1;
+			}	
+			if(data[0].equals("C"))  {
+				insertArticles = c.prepareStatement(EPISODE);
+				insertArticles.setString(1, data[1]);
+				insertArticles.setString(2, "C");
+				insertArticles.setInt(3, seriesYear);
+				insertArticles.setString(4, seriesName);
+				insertArticles.setString(5, seasonsName);
+				insertArticles.setInt(6, currentEpisode);
+				insertArticles.setInt(7, stock);
+				currentEpisode++;
+			}
+			insertArticles.executeUpdate();
 		}
-	}
-	
-	private void insertEpisode(int quantity) throws SQLException {
-		r = s.executeQuery("SELECT MAX(ID) FROM SEASONS");
-		int seasonID = r.getInt(1);
-		int episodes = Integer.parseInt(JOptionPane.showInputDialog(null,"¿Cuántas capítulos conforman la temporada?"));
-		for(int i=0;i<episodes;i++) {
-			String name = JOptionPane.showInputDialog("Inserte el nombre del capítulo "+(i+1));
-			p = c.prepareStatement(INSERT_EPISODE);
-			p.setString(1, name);
-			p.setInt(2, seasonID);
-			p.executeUpdate();
-			addStock("EPISODES", quantity);
-		}
-	}
-	
-	private void addStock(String table, int quantity) throws SQLException {
-		r = s.executeQuery("SELECT MAX(ID) FROM "+table);
-		int ID = r.getInt(1);
-		String sql = "INSERT INTO "+table+"_STATE (ID,STOCK) VALUES(?,?)";
-		p = c.prepareStatement(sql);
-		p.setInt(1, ID);
-		p.setInt(2, quantity);
-		p.executeUpdate();
+		input.close();
+		fr.close();
 	}
 }

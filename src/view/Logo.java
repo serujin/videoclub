@@ -3,8 +3,6 @@ package view;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
 import java.awt.Image;
 import constants.Constants;
 

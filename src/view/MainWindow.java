@@ -3,13 +3,11 @@ package view;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-
 import constants.Constants;
 
 public class MainWindow extends JFrame {

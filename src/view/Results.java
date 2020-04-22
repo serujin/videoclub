@@ -4,13 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Hashtable;
-
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
@@ -18,26 +12,19 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
-
 import constants.Constants;
 
 public class Results extends JPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	public JList<Object> resultList;
-	public JScrollPane resultPane;
+	private JList<String> resultList;
+	private JScrollPane resultPane;
 	private JPanel p1;
-	private JPanel p2;
-	private JPanel p3;
-	private int selected;
 	private Option o1;
 	private Option o2;
 	private Option o3;
@@ -48,6 +35,7 @@ public class Results extends JPanel {
 	private JSlider points;
 	private JButton rented;
 	private JButton repair;
+	private JButton update;
 	
 	public Results() {
 		this.setSize(Constants.RESULT_W, Constants.RESULT_H);
@@ -66,81 +54,14 @@ public class Results extends JPanel {
 			int x = (Constants.RESULT_OPTION_X+Constants.RESULT_OPTION_W)*i + margin;
 			options[i] = new Option(i, x, Constants.RESULT_OPTION_Y, Constants.RESULT_OPTION_W, Constants.RESULT_OPTION_H, Constants.RESULT_OPTION_TITLES);
 			options[i].changeColor(Constants.BG_COLOR);
-			addListener(i);
 			group.add(options[i]);
 			this.add(options[i]);
 		}
-		options[0].setSelected(true);
-		selected = 0;
-		activateOption(0);
-	}
-
-	private void addListener(int i) {
-		options[i].addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(options[i].isSelected()) {
-					activateOption(i);
-				}
-			}
-		});
-	}
-	
-	private void addPointsListener(JSlider s) {
-		s.addMouseListener(new MouseAdapter() {
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if(s.isEnabled()) {
-					rented.setEnabled(true);
-				}
-			}
-			
-			@Override 
-			public void mouseExited(MouseEvent e) {
-				if(s.isEnabled()) {
-					System.out.println(s.getValue());
-				}
-			}
-		});
-	}
-
-	private void activateOption(int i) {
-		if(i==0) {
-			inventory1.setEnabled(true);
-			inventory2.setEnabled(true);
-			inventory3.setEnabled(true);
-			points.setEnabled(false);
-			rented.setEnabled(false);
-			repair.setEnabled(false);
-		}
-		if(i==1) {
-			inventory1.setEnabled(false);
-			inventory2.setEnabled(false);
-			inventory3.setEnabled(false);
-			points.setEnabled(true);
-			points.setValue(25);
-			rented.setEnabled(false);
-			repair.setEnabled(false);
-		}
-		if(i==2) {
-			inventory1.setEnabled(false);
-			inventory2.setEnabled(false);
-			inventory3.setEnabled(false);
-			points.setEnabled(false);
-			rented.setEnabled(false);
-			repair.setEnabled(true);
-		}
-		selected = i;
 	}
 	
 	private void initResultList() {
-		String[] a = new String[120];
-		for(int i=0;i<a.length;i++) { //20, 30
-			a[i]="AAAAAAAAAAAAAAAAAAAA | AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA | 1234 | Ciencia-Ficción | Stop-Motion | 3.5";
-		}
 		resultPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		resultList = new JList<>(a);
+		resultList = new JList<>();
 		resultList.setFont(Constants.resultFont);
 		resultList.setBackground(Constants.BG_COLOR);
 		resultList.setForeground(Color.WHITE);
@@ -165,11 +86,13 @@ public class Results extends JPanel {
 		inventory3 = new JButton("Eliminar los artículos seleccionados");
 		rented = new JButton("Puntuar y devolver los artículos seleccionados");
 		repair = new JButton("Marcar como reparados los artículos seleccionados");
+		update = new JButton("Actualizar elemento");
 		formatButton(inventory1,0);
 		formatButton(inventory2,1);
 		formatButton(inventory3,2);
-		formatButton(rented,4);
-		formatButton(repair,5);
+		formatButton(update, 3);
+		formatButton(rented,5);
+		formatButton(repair,6);
 		formatPoints();
 		initPointsLabels();
 		p1.add(points);
@@ -195,11 +118,10 @@ public class Results extends JPanel {
         points.setMajorTickSpacing(5);
         points.setPaintTicks(true);
 		points.setSize(Constants.RESULT_ACTION_BUTTON_W, Constants.RESULT_ACTION_BUTTON_H);
-		points.setLocation(Constants.RESULT_ACTION_BUTTON_X, (Constants.RESULT_ACTION_BUTTON_H*3)+Constants.RESULT_ACTION_BUTTON_Y);
+		points.setLocation(Constants.RESULT_ACTION_BUTTON_X, (Constants.RESULT_ACTION_BUTTON_H*4)+Constants.RESULT_ACTION_BUTTON_Y);
 		points.setEnabled(false);
 		points.setBorder(new PointsBorder(null, "Puntuación", 0, 0, null));
 		points.setPaintTrack(false);
-		addPointsListener(points);
 	}
 	
 	private void formatButton(JButton b, int row) {
@@ -212,12 +134,12 @@ public class Results extends JPanel {
 		p1.add(b);
 	}
 	
-	public int getSelected() {
-		return selected;
+	public JRadioButton[] getOptions() {
+		return options;
 	}
 
 	public JComponent[] getMyComponents() {
-		return new JComponent[] {resultList,inventory1,inventory2,inventory3,points,rented,repair};
+		return new JComponent[] {resultList,inventory1,inventory2,inventory3,points,rented,repair,update};
 	}
 
 } 

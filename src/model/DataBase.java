@@ -1,28 +1,29 @@
 package model;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.JOptionPane;
-
 import constants.Constants;
 
 public class DataBase {
 	private Connection c;
-	private File db;
 	private Insert insert;
 	private Select select;
-
-//This class should hold the database of the program
-	public DataBase() throws SQLException {
-		db = new File(Constants.DB_NAME);
+	private Update update;
+	private Delete delete;
+	
+	/*
+	 * 
+	 * Esta clase es la clase "padre" de la base de datos, se encarga de organizar, crear, actualizar
+	 * 		y mimar la base de datos 
+	 * 
+	 */
+	public DataBase() throws SQLException, IOException {
+		File db = new File(Constants.DB_NAME);
 		if (!db.exists()) {
 			createDB();
 		} else {
@@ -30,19 +31,13 @@ public class DataBase {
 		}
 	}
 
-	public Insert insert() {
-		return insert;
-	}
-
-	public Select select() {
-		return select;
-	}
-
-	private void createDB() throws SQLException {
+	private void createDB() throws SQLException, IOException {
 		connectDB();
+		createTables();
 		insert = new Insert(c);
 		select = new Select(c);
-		createTables();
+		update = new Update(c);
+		delete = new Delete(c);
 		initAdmin();
 	}
 
@@ -53,10 +48,12 @@ public class DataBase {
 		}
 	}
 
-	private void initDB() throws SQLException {
+	private void initDB() throws SQLException, IOException {
 		connectDB();
 		insert = new Insert(c);
 		select = new Select(c);
+		update = new Update(c);
+		delete = new Delete(c);
 	}
 
 	private void initAdmin() throws SQLException {
@@ -71,5 +68,21 @@ public class DataBase {
 
 	private void connectDB() throws SQLException {
 		c = DriverManager.getConnection(Constants.DB + Constants.DB_NAME);
+	}
+
+	public Insert insert() {
+		return insert;
+	}
+
+	public Select select() {
+		return select;
+	}
+	
+	public Update update() {
+		return update;
+	}
+	
+	public Delete delete() {
+		return delete;
 	}
 }

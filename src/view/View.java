@@ -4,16 +4,24 @@ import java.awt.FontFormatException;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
-
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 
 import constants.Constants;
 
 public class View {
+	/*
+	 * Esta clase es como la clase "padre" de toda la GUI, organiza, cambia e inicializa todas las escenas y la ventana
+	 * 
+	 * Una vez que se ha hecho login correctamente se inicia todo (se encarga de ello la clase Controller)
+	 * 
+	 */
 	private MainWindow mw;
 	private Login l;
 	private Filter f;
@@ -22,6 +30,8 @@ public class View {
 	private User u;
 	private UserOptions o;
 	private UsersAdministration a;
+	private int selected;
+	private float valuation;
 	private JComponent[] scene1 = new JComponent[1];
 	private JComponent[] scene2 = new JComponent[4];
 	private JComponent[] scene3 = new JComponent[1];
@@ -30,10 +40,11 @@ public class View {
 		try {
 			Constants.initLabelsFont();
 		} catch (FontFormatException | IOException e) {
-			e.printStackTrace();
+			Constants.showError();
 		}
 		initLogin();
-		mw.changeScene(scene1, Constants.SCENE1_POINTS);		
+		mw.changeScene(scene1, Constants.SCENE1_POINTS);
+		selected = 0;
 	}
 	
 	private void setSceneChanger(JButton button, JComponent[] scene, Point[] positions) {
@@ -55,6 +66,10 @@ public class View {
 		mw.changeScene(scene2, Constants.SCENE2_POINTS);
 	}
 	
+	public String getUsername() {
+		return u.getUsername();
+	}
+	
 	public void initAll(boolean admin) {
 		f = new Filter();
 		scene2[0]=f;
@@ -69,6 +84,7 @@ public class View {
 		a = new UsersAdministration();
 		scene4[0]=a;
 		initSceneChanger();
+		addPointsListener();
 	}
 	
 	private void initSceneChanger() {
@@ -80,6 +96,43 @@ public class View {
 	
 	public MainWindow getFrame() {
 		return mw;
+	}
+	
+	public int getFilterF() {
+		return f.getFilter();
+	}
+	
+	public int getFilterR() {
+		return selected;
+	}
+	
+	public float getValuation() {
+		return valuation/10;
+	}
+	
+	public void setFilterR(int i) {
+		selected = i;
+	}
+	
+	private void addPointsListener() {
+		getResultComponents()[4].addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if(getResultComponents()[4].isEnabled()) {
+					getResultComponents()[5].setEnabled(true);
+				}
+			}
+			@Override 
+			public void mouseExited(MouseEvent e) {
+				if(getResultComponents()[4].isEnabled()) {
+					valuation = ((JSlider) getResultComponents()[4]).getValue();
+				}
+			}
+		});
+	}
+	
+	public JRadioButton[] getOptions() {
+		return r.getOptions();
 	}
 
 	public JTextField[] getLoginTextFields() {

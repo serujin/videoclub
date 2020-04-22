@@ -2,15 +2,12 @@ package view;
 
 import java.awt.Color;
 import java.awt.Image;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
-
 import constants.Constants;
 
 public class User extends JPanel {
@@ -33,6 +30,10 @@ public class User extends JPanel {
 			format(admin,Constants.USERNAME_X,Constants.ADMIN_Y);
 		}
 		format(name,Constants.USERNAME_X,Constants.USERNAME_Y);
+	}
+	
+	public String getUsername() {
+		return name.getText();
 	}
 	
 	private void format(JLabel l, int x, int y) {
